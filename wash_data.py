@@ -46,3 +46,57 @@ for row in f_csv_read:
 
 f_read.close()
 f_write.close()
+
+
+import csv
+import time
+i = -1
+f_read = open('alldata2.csv','rb')
+f_write = open('washed_data2.csv','wb')
+f_csv_read = csv.reader(f_read)
+f_csv_write = csv.writer(f_write)
+headers = next(f_csv_read)
+new_headers = headers[:7] + ['match_time_difference'] + headers[9:45] + headers[46:53] + headers[62:]
+f_csv_write.writerow(new_headers)
+for row in f_csv_read:
+    i += 1
+    if i % 1000 == 0:
+        print i
+    test = 0
+    for t in range(1,7):
+        if row[t] == '':
+            test = 1
+    for t in range(9,11):
+        if row[t] == '':
+            test = 1
+    for t in range(22,45):
+        if row[t] =='' or row[t] == '0.0':
+            test = 1
+    for t in range(46,54):
+        if row[t] =='' or row[t] == '0.0':
+            test = 1
+    for t in range(55,62):
+        if row[t] =='' or row[t] == '0.0':
+            test = 1
+    if row[62] == '':
+        test = 1
+    if row[65] == '':
+        test = 1
+    if test == 1:
+        continue
+
+    time1 = row[7]
+    time2 = row[8]
+    if time1 == '0.0' or time2 == '0.0':
+        match_time_difference = 0
+    else:
+        real_time1 = time.mktime(time.strptime(time1,'%Y-%m-%d %H:%M:%S'))
+        real_time2 = time.mktime(time.strptime(time2,'%Y-%m-%d %H:%M:%S'))
+        match_time_difference = real_time1 - real_time2
+    row[t] = float(row[44]) - float(row[53])
+    for t in range(46, 52):
+        row[t] = float(row[t]) - float(row[t+9])
+    f_csv_write.writerow(row[:7] + [match_time_difference] + row[9:45] + row[46:53] + row[62:]) 
+
+f_read.close()
+f_write.close()
